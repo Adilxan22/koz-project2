@@ -1,96 +1,131 @@
-import { useEffect, useRef } from 'react';
-import { Cpu, Mountain, Truck, BarChart3, ArrowRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 
-const services = [
-  {
-    id: 1,
-    title: 'Smart construction',
-    description:
-      'Our smart construction solutions reduce rework, improve accuracy, and help you stay ahead in a fast-changing industry.',
-    icon: Cpu,
-    large: true,
-  },
-  {
-    id: 2,
-    title: 'Mining solutions',
-    description:
-      "Whether it's surface or underground operations, we supply machinery that delivers high productivity, durability, and safety for every mining.",
-    icon: Mountain,
-    large: false,
-  },
-  {
-    id: 3,
-    title: 'Autonomous haulage system',
-    description:
-      'Take productivity and safety to the next level with our AHS-ready equipment.',
-    icon: Truck,
-    large: false,
-  },
-  {
-    id: 4,
-    title: 'Komtrax',
-    description:
-      'Improve fleet management, anticipate maintenance, and reduce fuel costs—all from your dashboard.',
-    icon: BarChart3,
-    large: false,
-  },
-];
+gsap.registerPlugin(ScrollTrigger);
 
 const Services = () => {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const textContainerRef = useRef<HTMLDivElement>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const services = [
+    {
+      id: 'engineering',
+      title: 'Engineering',
+      description: 'Full-cycle engineering solutions from feasibility studies to detailed design. We handle E, EP, and EPC contracts with precision and innovation.',
+      image: '/services/engineering.png'
+    },
+    {
+      id: 'construction',
+      title: 'Construction', 
+      description: 'Comprehensive construction services including site preparation, concrete works, steel structures, and infrastructure development.',
+      image: '/services/construction.png'
+    },
+    {
+      id: 'special-equipment',
+      title: 'Special Equipment',
+      description: 'Rental and supply of heavy machinery: excavators, bulldozers, cranes, dump trucks, and specialized oil & gas equipment.',
+      image: '/services/equipment.png'
+    },
+    {
+      id: 'logistics',
+      title: 'Logistics Services',
+      description: 'End-to-end logistics management for industrial projects, ensuring timely delivery of materials and equipment to any location.',
+      image: '/services/logistics.png'
+    }
+  ];
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-fade-in-up');
-            entry.target.classList.remove('opacity-0');
+    const section = sectionRef.current;
+    const textContainer = textContainerRef.current;
+    if (!section || !textContainer) return;
+
+    const ctx = gsap.context(() => {
+      // Текст движется плавно снизу вверх на всю высоту
+      gsap.to(textContainer, {
+        yPercent: -75, // 4 слайда = 3 перехода (100 - 25% на слайд)
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: `+=${window.innerHeight * 3}`,
+          pin: true,
+          scrub: 0.5,
+          onUpdate: (self: ScrollTrigger) => {
+            const progress = self.progress;
+            const slideIndex = Math.min(
+              Math.floor(progress * services.length), 
+              services.length - 1
+            );
+            setCurrentSlide(slideIndex);
           }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    );
+        }
+      });
+    });
 
-    const elements = sectionRef.current?.querySelectorAll('.animate-on-scroll');
-    elements?.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-6">
-          {services.map((service, index) => {
-            const Icon = service.icon;
-            return (
-              <div
-                key={service.id}
-                className={`animate-on-scroll opacity-0 bg-[#242424] rounded-3xl p-8 card-hover cursor-pointer group ${
-                  service.large ? 'md:row-span-2' : ''
-                }`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex flex-col h-full">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-[#1a1a1a] flex items-center justify-center">
-                      <Icon size={24} className="text-[#e85d04]" />
-                    </div>
-                    <ArrowRight
-                      size={20}
-                      className="text-gray-500 transition-all group-hover:text-[#e85d04] group-hover:translate-x-1"
-                    />
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold mb-4">{service.title}</h3>
-                  <p className="text-gray-400 leading-relaxed">{service.description}</p>
-                </div>
+    <div ref={sectionRef} className="relative bg-[#222] h-screen z-10 overflow-hidden">
+      
+
+      {/* Картинки - меняются резко (snap) */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        {services.map((service, index) => (
+          <div
+            key={service.id}
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-100 ${
+              index === currentSlide ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <div className="w-1/2 h-[70vh] flex items-center justify-center">
+              <img 
+                src={service.image} 
+                alt={service.title}
+                className="max-w-full max-h-full object-contain drop-shadow-2xl"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.style.display = 'none';
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Текст - скроллится снизу вверз плавно */}
+      <div className="absolute right-0 top-0 w-full lg:w-1/2 h-full overflow-hidden">
+        <div 
+          ref={textContainerRef}
+          className="absolute top-0 left-0 w-full"
+          style={{ height: `${services.length * 100}vh` }}
+        >
+          {services.map((service) => (
+            <div 
+              key={service.id}
+              className="h-screen flex items-center px-6 lg:px-12"
+            >
+              <div className="max-w-lg">
+                <h2 className="text-5xl md:text-6xl lg:text-7xl font-medium text-white leading-tight mb-6 drop-shadow-lg">
+                  {service.title}
+                </h2>
+                <p className="text-lg text-white/80 leading-relaxed mb-10">
+                  {service.description}
+                </p>
+                <a 
+                  href="#contact"
+                  className="inline-flex items-center justify-center bg-[#e85d04] hover:bg-[#d35400] text-white px-8 py-4 rounded-full font-medium text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105"
+                >
+                  Get Fast Quote
+                </a>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

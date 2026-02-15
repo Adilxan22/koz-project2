@@ -1,5 +1,6 @@
 import Header from './sections/Header';
 import Hero from './sections/Hero';
+import Partners from './sections/Partners'; // <-- 1. Добавили импорт
 import Products from './sections/Products';
 import Services from './sections/Services';
 import About from './sections/About';
@@ -13,12 +14,17 @@ import Footer from './sections/Footer';
 
 function App() {
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white">
+    // Изменил фон на #222, чтобы совпадал с Hero и Services (кроме белой секции Partners)
+    <div className="min-h-screen bg-[#222] text-white selection:bg-[#e85d04] selection:text-white">
       <Header />
       <main>
         <Hero />
-        <Products />
+        <Partners /> {/* <-- 2. Вставили секцию сюда */}
+        
+        {/* Можно временно скрыть Products, если они не нужны, или оставить */}
         <Services />
+        <Products /> 
+        
         <About />
         <Team />
         <CTA />
