@@ -152,7 +152,7 @@ const WhyChooseUs = () => {
           </h3>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {['ISO 9001', 'ISO 14001', 'OHSAS 18001', 'MCHS License'].map((cert, index) => (
+            {['ISO 9001', 'ISO 14001', 'OHSAS 18001', 'MCHS License'].map((cert) => (
               <div 
                 key={cert}
                 className="aspect-[3/4] bg-[#222]/5 border border-[#222]/10 hover:border-[#e85d04]/30 p-4 flex flex-col items-center justify-center group cursor-pointer transition-all duration-300 hover:bg-[#222]/[0.08]"
