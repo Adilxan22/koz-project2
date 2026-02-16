@@ -42,9 +42,8 @@ const Services = () => {
     if (!section || !textContainer) return;
 
     const ctx = gsap.context(() => {
-      // Текст движется плавно снизу вверх на всю высоту
       gsap.to(textContainer, {
-        yPercent: -75, // 4 слайда = 3 перехода (100 - 25% на слайд)
+        yPercent: -75,
         ease: 'none',
         scrollTrigger: {
           trigger: section,
@@ -70,17 +69,16 @@ const Services = () => {
   return (
     <div ref={sectionRef} className="relative bg-[#222] h-screen z-10 overflow-hidden">
       
-
-      {/* Картинки - меняются резко (snap) */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      {/* Левая половина — КАРТИНКИ (фиксированная ширина) */}
+      <div className="absolute left-0 top-0 w-1/2 h-full hidden lg:flex items-center justify-center pointer-events-none">
         {services.map((service, index) => (
           <div
             key={service.id}
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-100 ${
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
               index === currentSlide ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <div className="w-1/2 h-[70vh] flex items-center justify-center">
+            <div className="w-[80%] h-[60%] flex items-center justify-center">
               <img 
                 src={service.image} 
                 alt={service.title}
@@ -95,7 +93,7 @@ const Services = () => {
         ))}
       </div>
 
-      {/* Текст - скроллится снизу вверз плавно */}
+      {/* Правая половина — ТЕКСТ (скроллится) */}
       <div className="absolute right-0 top-0 w-full lg:w-1/2 h-full overflow-hidden">
         <div 
           ref={textContainerRef}
@@ -105,7 +103,7 @@ const Services = () => {
           {services.map((service) => (
             <div 
               key={service.id}
-              className="h-screen flex items-center px-6 lg:px-12"
+              className="h-screen flex items-center px-6 lg:px-16"
             >
               <div className="max-w-lg">
                 <h2 className="text-5xl md:text-6xl lg:text-7xl font-medium text-white leading-tight mb-6 drop-shadow-lg">
@@ -124,6 +122,24 @@ const Services = () => {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Мобильная версия — картинка сверху, текст снизу */}
+      <div className="lg:hidden absolute top-16 left-0 right-0 h-[40vh] flex items-center justify-center pointer-events-none">
+        {services.map((service, index) => (
+          <div
+            key={service.id}
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+              index === currentSlide ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <img 
+              src={service.image} 
+              alt={service.title}
+              className="max-w-[80%] max-h-full object-contain drop-shadow-2xl"
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
